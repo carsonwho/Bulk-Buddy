@@ -1,0 +1,229 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bulk Buddy</title>
+  <link rel="icon" href="icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Bulk Buddy</h1>
+  <nav>
+    <button data-tab="today" class="active">Today</button>
+    <button data-tab="add">Add Food</button>
+    <button data-tab="targets">Targets</button>
+    <button data-tab="reminders">Reminders</button>
+    <button data-tab="history">History</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+</header>
+
+<main>
+  <!-- TODAY -->
+  <section id="tab-today" class="tab active">
+    <div class="card">
+      <div class="row space">
+        <h2>Today</h2>
+        <div class="badges"><span class="badge green">US units</span><span class="badge">DB search</span></div>
+      </div>
+      <div id="targetsSummary" class="dim">Set your targets first.</div>
+      <div id="totals" class="totals">
+        <div><b>Eaten</b> <span id="eatenKcal">0</span> kcal — P <span id="eatenP">0</span> g / C <span id="eatenC">0</span> g / F <span id="eatenF">0</span> g</div>
+        <div><b>Remaining</b> <span id="remKcal">0</span> kcal — P <span id="remP">0</span> g / C <span id="remC">0</span> g / F <span id="remF">0</span> g</div>
+      </div>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <h3>Quick Add</h3>
+        <label>Note <input id="qaName" placeholder="e.g., Lunch"></label>
+        <div class="grid four">
+          <label>kcal<input id="qaK" type="number" inputmode="decimal"></label>
+          <label>P (g)<input id="qaP" type="number" inputmode="decimal"></label>
+          <label>C (g)<input id="qaC" type="number" inputmode="decimal"></label>
+          <label>F (g)<input id="qaF" type="number" inputmode="decimal"></label>
+        </div>
+        <button id="qaAdd" class="primary">Add</button>
+      </div>
+
+      <div class="card">
+        <h3>Log from Library</h3>
+        <label>Food name (saved)<input id="libName" placeholder="type name"></label>
+        <div id="libMeta" class="dim small"></div>
+        <div class="row">
+          <label style="flex:1">Amount<input id="libAmount" type="number" inputmode="decimal" placeholder="e.g., 8"></label>
+          <label style="width:160px">Unit
+            <select id="libUnit">
+              <option value="oz">oz</option>
+              <option value="serv">serving(s)</option>
+            </select>
+          </label>
+        </div>
+        <div id="libQuick" class="row-wrap"></div>
+        <button id="libAdd" class="primary">Add Entry</button>
+        <div class="dim small">Use servings for cups/fl‑oz foods (e.g., “1 cup (8 fl oz)”).</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row space">
+        <h3>Entries <span id="todayDate"></span></h3>
+        <div class="row">
+          <button id="prevDay" class="ghost">&larr;</button>
+          <button id="nextDay" class="ghost">&rarr;</button>
+        </div>
+      </div>
+      <div id="entries"></div>
+    </div>
+  </section>
+
+  <!-- ADD FOOD -->
+  <section id="tab-add" class="tab">
+    <div class="card">
+      <h2>Add Food to Library</h2>
+      <div class="row">
+        <label class="row"><input type="radio" name="mode" id="modeOz" checked> <span>Per 1 oz</span></label>
+        <label class="row"><input type="radio" name="mode" id="modeServ"> <span>Per serving</span></label>
+      </div>
+
+      <div id="perOz">
+        <div class="grid four">
+          <label>Name<input id="fNameOz" placeholder="e.g., Chicken breast (cooked)"></label>
+          <label>kcal / oz<input id="fKoz" type="number" inputmode="decimal"></label>
+          <label>P (g) / oz<input id="fPoz" type="number" inputmode="decimal"></label>
+          <label>F (g) / oz<input id="fFoz" type="number" inputmode="decimal"></label>
+        </div>
+        <div class="grid four">
+          <div></div>
+          <label>C (g) / oz<input id="fCoz" type="number" inputmode="decimal"></label>
+          <div></div><div></div>
+        </div>
+        <button id="saveFoodOz" class="primary">Save / Update (per oz)</button>
+      </div>
+
+      <div id="perServ" style="display:none">
+        <div class="grid four">
+          <label>Name<input id="fNameServ" placeholder="e.g., Orange juice"></label>
+          <label>Serving label<input id="fServLabel" placeholder="1 cup (8 fl oz)"></label>
+          <label>kcal / serving<input id="fKs" type="number" inputmode="decimal"></label>
+          <label>P (g) / serving<input id="fPs" type="number" inputmode="decimal"></label>
+        </div>
+        <div class="grid four">
+          <label>C (g) / serving<input id="fCs" type="number" inputmode="decimal"></label>
+          <label>F (g) / serving<input id="fFs" type="number" inputmode="decimal"></label>
+          <div class="row"><button type="button" id="presetCup" class="secondary">Preset: 1 cup (8 fl oz)</button></div>
+          <div></div>
+        </div>
+        <button id="saveFoodServ" class="primary">Save / Update (per serving)</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3>Search database (Open Food Facts)</h3>
+      <div class="row">
+        <input id="offQuery" placeholder="e.g., Greek yogurt plain">
+        <button id="offSearch" class="secondary">Search</button>
+      </div>
+      <div id="offResults" class="list"></div>
+
+      <div class="divider"></div>
+      <h3>Library</h3>
+      <div id="foodList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- TARGETS -->
+  <section id="tab-targets" class="tab">
+    <div class="card">
+      <h2>Targets (US)</h2>
+      <div class="grid five">
+        <label>Sex
+          <select id="tSex"><option value="male">Male</option><option value="female">Female</option></select>
+        </label>
+        <label>Age<input id="tAge" type="number" value="25"></label>
+        <label>Height — ft<input id="tFeet" type="number" value="5"></label>
+        <label>Height — in<input id="tInch" type="number" value="10"></label>
+        <label>Weight (lb)<input id="tWeightLb" type="number" value="170"></label>
+      </div>
+      <div class="grid three">
+        <label>Activity (1.2–1.9)<input id="tAct" type="number" step="0.05" value="1.55"></label>
+        <label>Surplus (kcal)<input id="tSurplus" type="number" value="300"></label>
+        <div></div>
+      </div>
+      <div class="grid three">
+        <label>Protein g/lb<input id="tProtLb" type="number" step="0.05" value="0.9"></label>
+        <label>Fat g/lb<input id="tFatLb" type="number" step="0.05" value="0.4"></label>
+        <div></div>
+      </div>
+      <button id="saveTargets" class="primary">Save Targets</button>
+      <div id="targetsOutput" class="dim"></div>
+    </div>
+  </section>
+
+  <!-- REMINDERS -->
+  <section id="tab-reminders" class="tab">
+    <div class="card">
+      <h2>Reminders</h2>
+      <label>Meal times (24h, comma-separated)<input id="rTimes" value="08:00, 12:00, 15:00, 19:00"></label>
+      <div class="grid two">
+        <label>Meal prep weekday (1=Sun..7=Sat)<input id="rWday" type="number" value="1"></label>
+        <label>Meal prep time<input id="rTime" value="16:00"></label>
+      </div>
+      <div class="row">
+        <button id="enableNotifs" class="secondary">Enable notifications</button>
+        <button id="startRem" class="primary">Start reminders</button>
+        <button id="stopRem" class="ghost">Stop</button>
+      </div>
+      <div id="remNote" class="dim small">Notifications work while this tab is open. For background reliability, export calendar events below.</div>
+    </div>
+    <div class="card">
+      <h3>Calendar export (ICS)</h3>
+      <div class="row">
+        <button id="dlMealsIcs" class="secondary">Download meals (daily)</button>
+        <button id="dlPrepIcs" class="secondary">Download meal-prep (weekly)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORY / WEIGHT -->
+  <section id="tab-history" class="tab">
+    <div class="card">
+      <h2>Weights</h2>
+      <div class="row">
+        <input id="wDate" type="date">
+        <input id="wLb" type="number" step="0.1" placeholder="lb">
+        <button id="saveWt" class="primary">Save</button>
+      </div>
+      <div id="weights"></div>
+    </div>
+    <div class="card">
+      <h2>Days with entries</h2>
+      <div id="daysList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="tab-settings" class="tab">
+    <div class="card">
+      <h2>Data</h2>
+      <div class="row">
+        <button id="exportJson" class="secondary">Export JSON</button>
+        <input id="importFile" type="file" accept="application/json">
+        <button id="clearData" class="ghost">Clear all</button>
+      </div>
+      <div class="dim small">Data is stored only in your browser (localStorage).</div>
+    </div>
+    <div class="card">
+      <h2>About</h2>
+      <p>US units throughout (lb, ft/in, oz). Use “per serving” foods for cups/fl oz (e.g., label “1 cup (8 fl oz)”). Database search uses Open Food Facts.</p>
+    </div>
+  </section>
+</main>
+
+<audio id="beep" src="beep.wav" preload="auto"></audio>
+<script src="app.js"></script>
+</body>
+</html>
